@@ -8,7 +8,7 @@ import IconsResolver from "unplugin-icons/resolver";
 import Inspect from "vite-plugin-inspect";
 import { VitePWA } from "vite-plugin-pwa";
 import VueDevTools from "vite-plugin-vue-devtools";
-
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 // vite.config.ts
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import UnoCss from "unocss/vite";
@@ -54,6 +54,7 @@ export default defineConfig({
         "src/store",
       ],
       vueTemplate: true,
+      resolvers: [ElementPlusResolver()],
     }),
 
     // https://github.com/antfu/unplugin-vue-components
@@ -64,6 +65,7 @@ export default defineConfig({
       exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.nuxt[\\/]/],
       resolvers: [
         IconsResolver(),
+        ElementPlusResolver(),
       ],
     }),
 

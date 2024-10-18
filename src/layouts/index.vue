@@ -1,6 +1,5 @@
-<script setup lang="ts">
-import Navbar from "./Navbar/index.vue";
-import Footer from "./Footer/index.vue";
+<script lang="ts" setup>
+import Navbar from "~/layouts/Navbar/Index.vue";
 
 defineOptions({
   name: "Layout",
@@ -8,13 +7,8 @@ defineOptions({
 </script>
 
 <template>
-  <div class="font-chinese antialiased">
-    <div class="min-h-screen">
-      <Navbar />
-      <RouterView />
-    </div>
-    <Footer />
-  </div>
+  <Navbar />
+  <RouterView />
 </template>
 
 <style scoped>

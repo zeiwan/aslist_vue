@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { logger } from "@kirklin/logger";
 
 logger.info("I'm ready!  ⸜(๑'ᵕ'๑)⸝⋆*");

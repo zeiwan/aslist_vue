@@ -13,6 +13,31 @@ const home = [{
   path: "/StoreTest",
   name: "StoreTest",
   component: () => import("~/pages/home/components/StoreTest.vue"),
+}, {
+  path: "/pan",
+  name: "pan",
+  children: [
+    {
+      path: "dashboard",
+      name: "dashboard",
+      component: () => import("~/pages/pan/components/Hero.vue"),
+    },
+    {
+      path: "/store",
+      name: "store",
+      component: () => import("~/pages/pan/store/index.vue"),
+    },
+    {
+      path: "/account",
+      name: "account",
+      component: () => import("~/pages/pan/account/index.vue"),
+    },
+    {
+      path: "/subCenter",
+      name: "subCenter",
+      component: () => import("~/pages/pan/subCenter/index.vue"),
+    },
+  ],
 }];
 
 export default home;
