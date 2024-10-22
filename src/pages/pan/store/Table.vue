@@ -1,14 +1,23 @@
 <script lang="ts" setup>
+import { useRequest } from "alova/client";
+import { shallowRef } from "vue";
 import { getSvgIcon } from "~/pages/pan/store/icons";
+import { deleteFile } from "~/api";
+import Share from "~/pages/pan/store/modules/share.vue";
 
 const props = defineProps<{
   tableData: any;
   isLoading: boolean;
   isMobile: boolean;
 }>();
-const emit = defineEmits(["sendPath"]);
+const emit = defineEmits(["sendPath", "comp"]);
+const shareRef = shallowRef<InstanceType<typeof Share>>();
 // 菜单列表
-const menus = [{ k: 1, v: "打开" }, { k: 2, v: "重命名" }, { k: 3, v: "删除" }, { k: 4, v: "下载" }, { k: 5, v: "分享" }];
+const menus = [{ k: 1, v: "重命名", icon: "i-lets-icons-rename-light" }, {
+  k: 2,
+  v: "删除",
+  icon: "i-mdi-light-delete",
+}, { k: 3, v: "下载", icon: "i-solar-download-linear" }, { k: 4, v: "分享", icon: "i-material-symbols-share" }];
 
 const model = ref({
   clientX: 0,
@@ -16,18 +25,54 @@ const model = ref({
   menuId: 0,
   isShow: false,
   path: "",
+  name: [],
 });
+
 // 右击菜单
 function cellContextmenu(row: any, column: any, cell: HTMLTableCellElement, event: Event) {
   model.value.clientX = event.clientX;
   model.value.clientY = event.clientY;
   model.value.isShow = true;
   event.preventDefault();
+  model.value.name.push(row.name);
 }
+
+const { send } = useRequest(() => deleteFile({ type: 1, path: MyPathGet().path, name: model.value.name }), {
+  // 当immediate为false时，默认不发出
+  immediate: false,
+});
+
 // 菜单点击事件
-function onMenu() {
+function onMenu(item) {
   model.value.isShow = false;
+  switch (item.k) {
+    case 1:
+      // 重命名逻辑
+      break;
+    case 2:
+      try {
+        send();
+        emit("comp", true);
+        model.value.name = [];
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        // 处理错误，例如显示错误消息
+      }
+      break;
+    case 3:
+      // 下载逻辑
+      break;
+    case 4:
+      // 分享逻辑
+      shareRef.value?.open();
+      model.value.name = []
+      ;
+      break;
+    default:
+      console.warn("Unknown menu item:", item);
+  }
 }
+
 // 单击
 function open(row: any, column: any) {
   // 获取不到列名称直接返回
@@ -38,9 +83,11 @@ function open(row: any, column: any) {
     emit("sendPath", row.name);
   }
 }
+
 function handleDocumentClick() {
   model.value.isShow = false;
 }
+
 onMounted(() => {
   document.addEventListener("click", handleDocumentClick);
   // 清理函数
@@ -48,10 +95,17 @@ onMounted(() => {
     document.removeEventListener("click", handleDocumentClick);
   });
 });
+
+function select(selection: any[]) {
+  model.value.name = selection.map(item => item.name);
+}
 </script>
 
 <template>
-  <ElTable v-loading="props.isLoading" :data="props.tableData" @cell-contextmenu="cellContextmenu" @row-click="open">
+  <ElTable
+    v-loading="props.isLoading" :data="props.tableData" @selection-change="select"
+    @cell-contextmenu="cellContextmenu" @row-click="open"
+  >
     <ElTableColumn type="selection" width="30" />
     <ElTableColumn :width="!props.isMobile ? '' : 220" label="名称">
       <template #default="scope">
@@ -73,11 +127,17 @@ onMounted(() => {
       top: `${model.clientY}px`,
       left: `${model.clientX}px`,
     }"
-    class="dropdown-content z-[1] w-52 bg-base-100 p-2 text-center shadow menu rounded-box"
+    class="dropdown-content z-[9] w-52 bg-base-100 p-2 text-center shadow menu rounded-box"
     tabindex="1"
   >
-    <li><a v-for="(item, index) in menus" :key="index" @click="onMenu(item.k)">{{ item.v }}</a></li>
+    <li v-for="(item, index) in menus" :key="index">
+      <a @click="onMenu(item)">
+        <UnoCSSIconButton :icon="item.icon" />
+        <a>{{ item.v }}</a>
+      </a>
+    </li>
   </ul>
+  <Share ref="shareRef" :name="model?.name" />
 </template>
 
 <style scoped>

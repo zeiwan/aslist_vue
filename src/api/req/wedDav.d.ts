@@ -1,6 +1,7 @@
-export interface WebDavGetFilesReq {
+export interface FSGetFilesReq {
   path: string;
 }
-export interface WebDavAddFilesReq {
+
+export interface FSAddFilesReq {
   name: string;
 }

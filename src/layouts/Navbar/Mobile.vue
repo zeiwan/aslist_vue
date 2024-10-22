@@ -35,12 +35,12 @@ function ChangeLocales(lang: string) {
 </script>
 
 <template>
-  <div className="dropdown">
+  <div className="dropdown z-8">
     <div :tabIndex="1" className="btn m-1 btn-ghost" role="button">
       <UnoCSSIconButton icon="i-tabler:adjustments-horizontal" />
     </div>
 
-    <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+    <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-30 p-2 shadow">
       <template v-for="item in props.menuList" :key="item">
         <li><a v-show="item.type !== 'dropdown'">{{ item.label }}</a></li>
         <template v-for="item in item.items" v-if="item.type === 'dropdown'" :key="item.path">

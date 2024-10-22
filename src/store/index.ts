@@ -7,6 +7,7 @@ const appStore: any = {};
  */
 export function registerStore() {
   appStore.counter = counter();
+  // appStore
 }
 
 export default appStore;

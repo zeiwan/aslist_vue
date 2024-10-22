@@ -25,7 +25,7 @@ const home = [{
     {
       path: "/store",
       name: "store",
-      component: () => import("~/pages/pan/store/index.vue"),
+      component: () => import("~/pages/pan/store/Index.vue"),
     },
     {
       path: "/account",

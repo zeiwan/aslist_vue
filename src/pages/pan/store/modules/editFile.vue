@@ -4,7 +4,7 @@ import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
 import { addFile } from "~/api";
 
-const emits = defineEmits(["close"]);
+const emits = defineEmits(["close", "comp"]);
 const ruleFormRef = ref<FormInstance>();
 const mode = ref("add");
 const popupTitle = computed(() => {
@@ -17,18 +17,17 @@ function close() {
   emits("close");
 }
 
-function open(title: string) {
-  isShow.value = true;
-  mode.value = title;
-}
+const ruleForm = reactive<RuleForm>({
+  name: null,
+  path: null, // 初始化 path
+  type: 1, // 初始化 type
+});
 
 interface RuleForm {
-  name: string;
+  name: string | null;
+  path: string;
+  type: number;
 }
-
-const ruleForm = reactive<RuleForm>({
-  name: "",
-});
 
 const rules = reactive<FormRules<RuleForm>>({
   name: [
@@ -36,17 +35,31 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 });
 
-// 导出组件函数
+// 重置表单
+function resetForm() {
+  ruleFormRef.value?.resetFields(); // 重置表单验证状态
+}
+
+function open(title: string) {
+  isShow.value = true;
+  mode.value = title;
+  resetForm();
+  ruleForm.path = MyPathGet().path;
+  ruleForm.type = 1;
+}
+
 defineExpose({
   open,
 });
 
-const { data, loading, send, error } = useRequest(() => addFile(ruleForm), { immediate: false });
+const { loading, send } = useRequest(() => addFile(ruleForm), { immediate: false });
 
+// 提交
 function submitForm() {
   ruleFormRef.value?.validate((valid) => {
     if (valid) {
       send().then(() => {
+        emits("comp", true);
         close(); // 提交成功后关闭弹窗
       }).catch(() => {
         // 处理错误情况
@@ -59,7 +72,7 @@ function submitForm() {
 </script>
 
 <template>
-  <PopUp v-model="isShow" :title="popupTitle" @close="close" @confirm="submitForm">
+  <PopUp v-model="isShow" :loading="loading" :title="popupTitle" @close="close" @confirm="submitForm">
     <ElForm
       ref="ruleFormRef"
       :model="ruleForm"
@@ -72,10 +85,9 @@ function submitForm() {
       <ElFormItem label="文件名称" prop="name">
         <ElInput v-model="ruleForm.name" />
       </ElFormItem>
+      <ElFormItem label="当前目录">
+        <ElInput v-model="ruleForm.path" disabled />
+      </ElFormItem>
     </ElForm>
   </PopUp>
 </template>
-
-<style scoped>
-/* 你的样式 */
-</style>

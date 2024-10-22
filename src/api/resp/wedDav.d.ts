@@ -1,5 +1,5 @@
 // types.ts
-export interface WebDavGetFilesResp {
+export interface FSGetFilesResp {
   code: number;
   msg: string;
   data: {

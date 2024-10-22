@@ -7,9 +7,8 @@ const props = defineProps<{
   modelValue: boolean;
   onClose: () => void;
   loading: boolean;
-  confirm: () => void;
 }>();
-const emits = defineEmits(["update:modelValue", "close"]);
+const emits = defineEmits(["close", "confirm"]);
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smaller("sm");
 const localIsShow = ref(props.modelValue);
@@ -22,9 +21,12 @@ watch(() => props.modelValue, (newVal) => {
 // 关闭对话框
 function close() {
   localIsShow.value = false;
-  emits("update:modelValue", false); // 更新 modelValue
   emits("close");
   props.onClose(); // 触发父组件的关闭方法
+}
+
+function confirm() {
+  emits("confirm");
 }
 </script>
 
@@ -36,7 +38,7 @@ function close() {
         <button class="btn btn-sm" @click="close">
           取消
         </button>
-        <button :disabled="props.loading" class="btn btn-success btn-sm" @click="props.confirm">
+        <button :disabled="props.loading" class="btn btn-success btn-sm" @click="confirm">
           确定
         </button>
       </div>

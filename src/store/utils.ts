@@ -1,17 +1,12 @@
-import { breakpointsTailwind } from "@vueuse/core";
-import { defineStore } from "pinia";
+import { useIDBKeyval } from "@vueuse/integrations/useIDBKeyval";
 
-export const useDeviceStore = defineStore("device", {
-  state: () => ({
-    isMobile: false,
-  }),
-  getters: {
-    isMobileDevice: state => state.isMobile,
-  },
-  actions: {
-    updateDeviceType() {
-      const breakpoints = useBreakpoints(breakpointsTailwind);
-      this.isMobile = breakpoints.smaller("sm");
-    },
-  },
-});
+const { data: pathObject } = useIDBKeyval("path", { path: "/" });
+
+// 操作 PathStore
+export function MyPathSet(path: any) {
+  pathObject.value.path = path;
+}
+
+export function MyPathGet() {
+  return pathObject.value;
+}

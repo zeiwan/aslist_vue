@@ -17,13 +17,7 @@ const type = ref(1);
 
 // 切换视图
 const currentComponent = computed(() => type.value === 1 ? Table : Grid);
-
-const { data, loading, send, error } = useRequest(() => getFileList({ path: commonPath.value }));
-
-function handleError(error: any) {
-  console.error("请求失败:", error);
-  ElMessage.error("请求失败，请稍后再试！");
-}
+const { data, loading, send } = useRequest(() => getFileList({ path: commonPath.value, type: 1 }));
 
 async function getFiles(common = "/") {
   if (common === "") {
@@ -31,14 +25,12 @@ async function getFiles(common = "/") {
   } else {
     commonPath.value = common;
   }
-  try {
-    send();
-  } catch (err) {
-    handleError(err);
-  }
+  MyPathSet(commonPath.value);
+  await send();
 }
+
 onMounted(() => {
-  // getFiles();
+  getFiles();
 });
 
 // 设置路径 来自子组件点击事件
@@ -71,13 +63,18 @@ function upload() {
 }
 
 // 新建文件
-function createFile() {
-  editRef.value?.open("add");
-  console.log("打开新建文件夹");
+async function createFile() {
+  if (editRef.value) {
+    await new Promise<void>((resolve) => {
+      editRef.value!.open("add", () => {
+        resolve();
+      });
+    });
+  }
 }
 
-function close() {
-  // showEdit.value = false;
+async function comp() {
+  await send();
 }
 </script>
 
@@ -91,9 +88,9 @@ function close() {
         <div class="text-white btn btn-success btn-sm" @click="createFile">
           新建文件
         </div>
-        <div class="text-white btn btn-error btn-sm">
-          批量删除
-        </div>
+        <!--        <div class="text-white btn btn-error btn-sm"> -->
+        <!--          批量删除 -->
+        <!--        </div> -->
       </div>
       <ElCard class="el-card__header" shadow="never">
         <template #header>
@@ -108,11 +105,14 @@ function close() {
             </ul>
           </div>
         </template>
-        <component :is="currentComponent" :is-loading="loading" :is-mobile="isMobile" :table-data="data?.records" @send-path="setPath" />
+        <component
+          :is="currentComponent" :is-loading="loading" :is-mobile="isMobile" :table-data="data?.records"
+          @comp="comp" @send-path="setPath"
+        />
       </ElCard>
     </ElCard>
   </div>
-  <EditFile ref="editRef" title-type @close="close" />
+  <EditFile ref="editRef" title-type @comp="comp" />
 </template>
 
 <style scoped>
