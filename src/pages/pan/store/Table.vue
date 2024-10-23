@@ -4,13 +4,18 @@ import { shallowRef } from "vue";
 import { getSvgIcon } from "~/pages/pan/store/icons";
 import { deleteFile } from "~/api";
 import Share from "~/pages/pan/store/modules/share.vue";
+import EditFile from "~/pages/pan/store/modules/editFile.vue";
 
 const props = defineProps<{
   tableData: any;
   isLoading: boolean;
   isMobile: boolean;
 }>();
+
 const emit = defineEmits(["sendPath", "comp"]);
+
+const editRef = shallowRef<InstanceType<typeof EditFile>>();
+
 const shareRef = shallowRef<InstanceType<typeof Share>>();
 // 菜单列表
 const menus = [{ k: 1, v: "重命名", icon: "i-lets-icons-rename-light" }, {
@@ -37,7 +42,7 @@ function cellContextmenu(row: any, column: any, cell: HTMLTableCellElement, even
   model.value.name.push(row.name);
 }
 
-const { send } = useRequest(() => deleteFile({ type: 1, path: MyPathGet().path, name: model.value.name }), {
+const { send: deleteSend } = useRequest(() => deleteFile({ type: 1, path: MyPathGet().path, name: model.value.name }), {
   // 当immediate为false时，默认不发出
   immediate: false,
 });
@@ -48,11 +53,16 @@ function onMenu(item) {
   switch (item.k) {
     case 1:
       // 重命名逻辑
+      editRef.value?.open("edit");
+      emit("comp", true);
+      model.value.name = [];
       break;
     case 2:
       try {
-        send();
-        emit("comp", true);
+        deleteSend().then(() => {
+          emit("comp", true);
+        });
+
         model.value.name = [];
       } catch (error) {
         console.error("Error deleting file:", error);
@@ -99,6 +109,10 @@ onMounted(() => {
 function select(selection: any[]) {
   model.value.name = selection.map(item => item.name);
 }
+
+function comp() {
+  emit("comp", true);
+}
 </script>
 
 <template>
@@ -138,6 +152,7 @@ function select(selection: any[]) {
     </li>
   </ul>
   <Share ref="shareRef" :name="model?.name" />
+  <EditFile ref="editRef" :name="model?.name" title-type @comp="comp" />
 </template>
 
 <style scoped>

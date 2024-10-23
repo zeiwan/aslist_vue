@@ -34,10 +34,10 @@ function confirm() {
 <template>
   <ElDialog v-model="localIsShow" :title="props.title" :width="isMobile ? '400px' : '500px'" @close="close">
     <slot />
-    <template v-if="!props.hidden" #footer>
+    <template v-if="props.hidden" #footer>
       <div class="space-x-4">
         <button class="btn btn-sm" @click="close">
-          取消1111
+          取消
         </button>
         <button :disabled="props.loading" class="btn btn-success btn-sm" @click="confirm">
           确定

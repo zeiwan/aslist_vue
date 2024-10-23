@@ -2,7 +2,11 @@
 import { computed, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
-import { addFile } from "~/api";
+import { addFile, renameFile } from "~/api";
+
+const props = defineProps<{
+  name?: string;
+}>();
 
 const emits = defineEmits(["close", "comp"]);
 const ruleFormRef = ref<FormInstance>();
@@ -21,12 +25,14 @@ const ruleForm = reactive<RuleForm>({
   name: null,
   path: null, // 初始化 path
   type: 1, // 初始化 type
+  orName: null,
 });
 
 interface RuleForm {
   name: string | null;
   path: string;
   type: number;
+  orName: null;
 }
 
 const rules = reactive<FormRules<RuleForm>>({
@@ -46,25 +52,37 @@ function open(title: string) {
   resetForm();
   ruleForm.path = MyPathGet().path;
   ruleForm.type = 1;
+  if (props.name) {
+    ruleForm.name = props.name[0];
+    ruleForm.orName = props.name[0];
+  }
 }
 
 defineExpose({
   open,
 });
 
-const { loading, send } = useRequest(() => addFile(ruleForm), { immediate: false });
-
-// 提交
-function submitForm() {
+const { loading, send: addSend } = useRequest(() => addFile(ruleForm), { immediate: false });
+const { renameloading, send: renameSend } = useRequest(() => renameFile(ruleForm), {
+  // 当immediate为false时，默认不发出
+  immediate: false,
+});
+// 提交表单函数
+async function submitForm() {
   ruleFormRef.value?.validate((valid) => {
     if (valid) {
-      send().then(() => {
-        emits("comp", true);
-        close(); // 提交成功后关闭弹窗
-      }).catch(() => {
-        // 处理错误情况
-      });
+      const operation = mode.value === "add" ? addSend : renameSend;
+      operation()
+        .then(() => {
+          emits("comp", true);
+          close(); // 关闭弹窗
+        })
+        .catch((error) => {
+          console.error("Submit error:", error);
+          // 可以在这里显示错误信息给用户
+        });
     } else {
+      console.warn("Validation failed");
       return false;
     }
   });

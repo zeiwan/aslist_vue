@@ -17,3 +17,6 @@ export function deleteFile(data: FSAddFilesReq): Promise<Response> {
 export function shareLink(data: any) {
   return Alova.createPost("/fs/shareLink", data);
 }
+export function renameFile(data: any) {
+  return Alova.createPost("/fs/renameFile", data);
+}

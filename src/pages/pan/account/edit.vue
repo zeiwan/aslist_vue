@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from "element-plus";
 import { ref } from "vue";
+import WebDav from "~/pages/pan/account/modules/WebDav.vue";
+import Account from "~/pages/pan/account/modules/Account.vue";
 
+const hidden = ref(false);
 const isShow = ref(false);
 const mode = ref("add");
 const popupTitle = computed(() => {
@@ -14,11 +17,11 @@ const cloudList = reactive([
   },
   {
     value: 2,
-    label: "夸克云盘",
+    label: "WebDav",
   },
   {
     value: 3,
-    label: "阿里云盘",
+    label: "夸克云盘",
   },
   {
     value: 4,
@@ -27,29 +30,19 @@ const cloudList = reactive([
 ]);
 
 function open(title: string) {
-  mode.value = title;
   isShow.value = true;
+  mode.value = title;
 }
 interface RuleForm {
   cloudId: number;
-  password: string;
-  account: string;
 }
 const ruleForm = reactive<RuleForm>({
   cloudId: null,
-  password: null,
-  account: null,
 });
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive<FormRules<RuleForm>>({
   cloudId: [
     { required: true, message: "请选择云盘类型", trigger: "blur" },
-  ],
-  password: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-  ],
-  account: [
-    { required: true, message: "请输入账号", trigger: "blur" },
   ],
 });
 function close() {
@@ -61,7 +54,7 @@ defineExpose({
 </script>
 
 <template>
-  <PopUp :is-show="isShow" :title="popupTitle" @close="close">
+  <PopUp v-model="isShow" :hidden="hidden" :title="popupTitle" @close="close">
     <ElForm
       ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="auto"
     >
@@ -70,29 +63,15 @@ defineExpose({
           <ElOption
             v-for="item in cloudList"
             :key="item.value"
-            :disabled="item.value > 1"
+            :disabled="item.value > 2"
             :label="item.label"
             :value="item.value"
           />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="平台账号" prop="account">
-        <ElInput v-model="ruleForm.account" />
-      </ElFormItem>
-      <ElFormItem label="平台密码" prop="password">
-        <ElInput v-model="ruleForm.password" type="password" />
-      </ElFormItem>
     </ElForm>
-    <template #footer>
-      <div class="space-x-4">
-        <button className="btn btn-sm" @click="close">
-          取消
-        </button>
-        <button className="btn btn-success btn-sm">
-          确定
-        </button>
-      </div>
-    </template>
+    <Account v-if="ruleForm.cloudId === 1" :type="ruleForm.cloudId" />
+    <WebDav v-if="ruleForm.cloudId === 2" :type="ruleForm.cloudId" />
   </PopUp>
 </template>
 
