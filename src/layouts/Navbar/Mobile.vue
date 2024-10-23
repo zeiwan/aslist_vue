@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useLocalStorage } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
-
 const props = defineProps<{
   menuList: {
     type: Array<{
@@ -14,24 +10,24 @@ const props = defineProps<{
   };
 }>();
 
-const isShow = ref(false);
+// const isShow = ref(false);
 
-function toggleMenu() {
-  console.log("？？？");
-  isShow.value = !isShow.value; // 切换显示状态
-}
+// function toggleMenu() {
+//   console.log("？？？");
+//   isShow.value = !isShow.value; // 切换显示状态
+// }
 
-function goRouter(subItem: { path: string }, event: Event) {
-  event.preventDefault();
-  console.log(`Navigating to: ${subItem.path}`);
-  // 这里可以添加实际的路由跳转逻辑
-}
-const { availableLocales, locale } = useI18n();
-function ChangeLocales(lang: string) {
-  locale.value = lang;
-  const localedLang = useLocalStorage("locale", "zh");
-  localedLang.value = lang;
-}
+// function goRouter(subItem: { path: string }, event: Event) {
+//   event.preventDefault();
+//   console.log(`Navigating to: ${subItem.path}`);
+//   // 这里可以添加实际的路由跳转逻辑
+// }
+// const { availableLocales, locale } = useI18n();
+// function ChangeLocales(lang: string) {
+//   locale.value = lang;
+//   const localedLang = useLocalStorage("locale", "zh");
+//   localedLang.value = lang;
+// }
 </script>
 
 <template>
@@ -41,10 +37,10 @@ function ChangeLocales(lang: string) {
     </div>
 
     <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-30 p-2 shadow">
-      <template v-for="item in props.menuList" :key="item">
+      <template v-for="(item, index) in props.menuList" :key="index">
         <li><a v-show="item.type !== 'dropdown'">{{ item.label }}</a></li>
-        <template v-for="item in item.items" v-if="item.type === 'dropdown'" :key="item.path">
-          <li><a>{{ item.label }}</a></li>
+        <template v-for="(sub, index) in item.items" v-if="sub.type === 'dropdown'" :key="index">
+          <li><a>{{ sub.label }}</a></li>
         </template>
       </template>
     </ul>

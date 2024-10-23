@@ -22,9 +22,9 @@ const menuItems = ref([
   },
 ]);
 
-function handleNavigate(subItem, event) {
+function handleNavigate(subItem) {
   router.push(subItem.href);
-  console.log(event, subItem.href);
+  // console.log(event, subItem.href);
   // const detailsElement = event.target.closest("details");
   // if (detailsElement) {
   //   detailsElement.open = false;
