@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
-import { panLogin } from "~/api/pan";
+import { cloudLogin } from "~/api/cloud";
 
 const props = defineProps<{
   type: number;
@@ -15,6 +15,7 @@ interface RuleForm {
   account: string;
   password: string;
   remarks: string;
+  path: string;
 }
 
 const ruleForm = reactive<RuleForm>({
@@ -25,6 +26,7 @@ const ruleForm = reactive<RuleForm>({
   password: null,
   remarks: null,
   type: props.type,
+  path: null,
 });
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive<FormRules<RuleForm>>({
@@ -42,15 +44,11 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 });
 
-const { send, loading } = useRequest(() => panLogin(ruleForm), { immediate: false });
+const { send, loading } = useRequest(() => cloudLogin(ruleForm), { immediate: false });
 
 async function confirm() {
   await ruleFormRef.value?.validate();
   await send();
-}
-
-function close() {
-  // 关闭对话框或其他逻辑
 }
 </script>
 
@@ -66,7 +64,10 @@ function close() {
         <ElSwitch v-model="ruleForm.https" />
       </ElFormItem>
       <ElFormItem label="URL" prop="url">
-        <ElInput v-model="ruleForm.url" placeholder="10.0.0.1:" />
+        <ElInput v-model="ruleForm.url" placeholder="10.0.0.1" />
+      </ElFormItem>
+      <ElFormItem label="路径" prop="path">
+        <ElInput v-model.number="ruleForm.path" placeholder="dav" />
       </ElFormItem>
       <ElFormItem label="端口" prop="port">
         <ElInput v-model.number="ruleForm.port" placeholder="5244" />

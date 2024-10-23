@@ -54,7 +54,7 @@ defineExpose({
 </script>
 
 <template>
-  <PopUp v-model="isShow" :hidden="hidden" :title="popupTitle" @close="close">
+  <PopUp v-model="isShow" :hidden="!hidden" :title="popupTitle" @close="close">
     <ElForm
       ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="auto"
     >

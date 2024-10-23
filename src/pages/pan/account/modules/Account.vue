@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
+import { useRequest } from "alova/client";
+import { cloudLogin } from "~/api/cloud";
 
 const props = defineProps<{
   type: number;
@@ -10,12 +12,14 @@ interface RuleForm {
   account: string;
   password: string;
   remarks: string;
+  type: number;
 }
 
 const ruleForm = reactive<RuleForm>({
   account: null,
   password: null,
   remarks: null,
+  type: props.type,
 });
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive<FormRules<RuleForm>>({
@@ -27,8 +31,11 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 });
 
+const { send, loading } = useRequest(() => cloudLogin(ruleForm), { immediate: false });
+
 async function confirm() {
   await ruleFormRef.value?.validate();
+  await send();
 }
 </script>
 
@@ -55,7 +62,7 @@ async function confirm() {
         <!--        <button class="btn btn-sm" @click="close"> -->
         <!--          重置 -->
         <!--        </button> -->
-        <button class="btn btn-success btn-sm" @click="confirm">
+        <button :loading="loading" class="btn btn-success btn-sm" @click="confirm">
           保存
         </button>
       </div>

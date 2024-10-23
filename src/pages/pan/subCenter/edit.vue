@@ -34,12 +34,12 @@ function open(title: string) {
 }
 interface RuleForm {
   cloudId: number;
-  password: string;
+  url: string;
   account: string;
 }
 const ruleForm = reactive<RuleForm>({
   cloudId: null,
-  password: null,
+  url: null,
   account: null,
 });
 const ruleFormRef = ref<FormInstance>();
@@ -68,7 +68,7 @@ defineExpose({
 </script>
 
 <template>
-  <PopUp :is-show="isShow" :title="popupTitle" @close="close">
+  <PopUp v-model="isShow" :title="popupTitle" @close="close">
     <ElForm
       ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="auto"
     >
@@ -83,8 +83,8 @@ defineExpose({
           />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="平台账号" prop="account">
-        <ElInput v-model="ruleForm.account" />
+      <ElFormItem label="订阅地址" prop="url">
+        <ElInput v-model="ruleForm.url" />
       </ElFormItem>
       <ElFormItem label="平台密码" prop="password">
         <ElInput v-model="ruleForm.password" type="password" />
@@ -93,16 +93,6 @@ defineExpose({
         抽屉
       </button>
     </ElForm>
-    <template #footer>
-      <div class="space-x-4">
-        <button className="btn btn-sm" @click="close">
-          取消
-        </button>
-        <button className="btn btn-success btn-sm">
-          确定
-        </button>
-      </div>
-    </template>
   </PopUp>
   <ScrapeIndex :is-show="visible" :on-close="close" />
 </template>
