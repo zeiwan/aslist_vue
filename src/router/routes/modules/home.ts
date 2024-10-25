@@ -33,9 +33,9 @@ const home = [{
       component: () => import("~/pages/pan/account/index.vue"),
     },
     {
-      path: "/subCenter",
-      name: "subCenter",
-      component: () => import("~/pages/pan/subCenter/index.vue"),
+      path: "/subHub",
+      name: "subHub",
+      component: () => import("~/pages/pan/subHub/index.vue"),
     },
   ],
 }];

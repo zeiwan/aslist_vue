@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // 新建
 
-import Edit from "~/pages/pan/subCenter/edit.vue";
+import Edit from "~/pages/pan/subHub/edit.vue";
 // 引用组件函数
 const editRef = shallowRef<InstanceType<typeof Edit>>();
 const isLoading = ref(false);

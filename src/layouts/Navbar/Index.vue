@@ -16,7 +16,7 @@ const menuItems = ref([
     label: "管理中心",
     items: [
       { label: "云盘管理", href: "/store" },
-      { label: "订阅中心", href: "/subCenter" },
+      { label: "订阅中心", href: "/subHub" },
       { label: "账号管理", href: "/account" },
     ],
   },

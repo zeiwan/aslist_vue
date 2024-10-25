@@ -112,7 +112,7 @@ async function comp() {
       </ElCard>
     </ElCard>
   </div>
-  <EditFile ref="editRef" title-type @comp="comp" />
+  <EditFile ref="editRef" @comp="comp" />
 </template>
 
 <style scoped>

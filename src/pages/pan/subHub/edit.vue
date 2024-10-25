@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import type { FormInstance, FormRules } from "element-plus";
+import type { CascaderProps, FormInstance, FormRules } from "element-plus";
 import { ref } from "vue";
+import { useRequest } from "alova/client";
+
 import ScrapeIndex from "../../../components/scrape/index.vue";
+import { getSubFolderLists } from "~/api/subHub";
 
 const visible = ref(false);
 const isShow = ref(false);
@@ -38,10 +41,17 @@ interface RuleForm {
   account: string;
 }
 const ruleForm = reactive<RuleForm>({
-  cloudId: null,
-  url: null,
+  cloudId: 1,
+  url: "https://cloud.189.cn/web/share?code=NBraYny2emme",
   account: null,
 });
+
+const urlData = reactive({
+  cloudId: 1,
+  url: "https://cloud.189.cn/web/share?code=NBraYny2emme",
+  account: null,
+});
+
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive<FormRules<RuleForm>>({
   cloudId: [
@@ -62,6 +72,29 @@ function scrape() {
 function close() {
   isShow.value = false;
 }
+
+const { send: subHubSend, loading: subHubLoading } = useRequest(() => getSubFolderLists(urlData), { immediate: false });
+
+let id = 0;
+const folderLists: CascaderProps = {
+  lazy: true,
+  lazyLoad(node, resolve) {
+    const { level } = node;
+    setTimeout(() => {
+      const nodes = Array.from({ length: level + 1 }).map(item => ({
+        value: ++id,
+        label: `Option - ${id}`,
+        leaf: level >= 2,
+      }));
+      // Invoke `resolve` callback to return the child nodes data and indicate the loading is finished.
+      resolve(nodes);
+    }, 1000);
+  },
+};
+function parseurl() {
+  subHubSend();
+}
+
 defineExpose({
   open,
 });
@@ -86,12 +119,22 @@ defineExpose({
       <ElFormItem label="订阅地址" prop="url">
         <ElInput v-model="ruleForm.url" />
       </ElFormItem>
-      <ElFormItem label="平台密码" prop="password">
-        <ElInput v-model="ruleForm.password" type="password" />
+      <ElFormItem label="访问密码" prop="password">
+        <div class="flex">
+          <ElInput v-model="ruleForm.password" class="w-10" type="password" />
+          <div class="ml-2 w-full">
+            <button className="btn btn-sm btn-accent" @click="parseurl">
+              解析链接
+            </button>
+          </div>
+        </div>
       </ElFormItem>
-      <button className="btn btn-sm" @click="scrape">
-        抽屉
-      </button>
+      <ElFormItem label="订阅目录" prop="password">
+        <ElCascader :props="folderLists" />
+      </ElFormItem>
+      <ElFormItem label="保存目录" prop="password">
+        a
+      </ElFormItem>
     </ElForm>
   </PopUp>
   <ScrapeIndex :is-show="visible" :on-close="close" />
