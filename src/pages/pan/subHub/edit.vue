@@ -12,11 +12,11 @@ const {
   ruleForm,
   ruleFormRef,
   rules,
-  scrape,
   close,
-  cascaderProps,
-  selectedOptions,
   parseurl,
+  getMyDirList,
+  shareDirProps,
+  myDirProps,
 } = useTask();
 
 defineExpose({
@@ -46,10 +46,11 @@ defineExpose({
         </div>
       </ElFormItem>
       <ElFormItem label="订阅目录" prop="shareDirId">
-        <ElCascader v-model="ruleForm.shareDirId" :props="cascaderProps" class="w-full" />
+        <ElCascader v-model="ruleForm.shareDirId" :props="shareDirProps" class="w-full" />
       </ElFormItem>
-      <ElFormItem label="保存目录" prop="password">
-        a
+      <ElFormItem label="保存目录" prop="saveDirId">
+        <div>{{ ruleForm.saveDirId }}</div>
+        <ElCascader v-model="ruleForm.saveDirId" :check-strictly="true" :props="myDirProps" class="w-full" />
       </ElFormItem>
     </ElForm>
   </PopUp>

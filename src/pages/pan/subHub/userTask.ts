@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
-import { getShareNodes, getSubFolderLists } from "~/api/subHub";
+import { getMyDirNodes, getShareNodes, getSubFolderLists } from "~/api/subHub";
 
 export function useTask() {
   const visible = ref(false);
@@ -26,21 +26,27 @@ export function useTask() {
     cloudId: number;
     url: string;
     account: string;
-    shareDirId: string; // 添加密码字段
+    shareDirId: string[]; // 修改为数组
+    saveDirId: string[]; // 修改为数组
   }
 
   const ruleForm = reactive<RuleForm>({
     cloudId: 1,
-    url: "https://cloud.189.cn/web/share?code=NBraYny2emme",
+    url: "https://cloud.189.cn/t/NBraYny2emme",
     account: "",
-    shareDirId: "",
+    shareDirId: [], // 初始化为数组
+    saveDirId: [], // 初始化为数组
   });
 
   const urlData = reactive({
-    cloudId: ruleForm.cloudId,
-    url: ruleForm.url,
-    account: ruleForm.account,
-    shareDirId: ruleForm.shareDirId,
+    cloudId: "",
+    url: "",
+    account: "",
+    shareDirId: "",
+  });
+  const myData = reactive({
+    cloudId: 1,
+    myDirId: "",
   });
 
   const ruleFormRef = ref<FormInstance>();
@@ -48,12 +54,9 @@ export function useTask() {
     cloudId: [{ required: true, message: "请选择云盘类型", trigger: "blur" }],
     password: [{ required: true, message: "请输入密码", trigger: "blur" }],
     account: [{ required: true, message: "请输入账号", trigger: "blur" }],
+    shareDirId: [{ required: true, message: "请选择订阅目录", trigger: "blur" }],
+    saveDirId: [{ required: true, message: "请选择保存目录", trigger: "blur" }],
   });
-
-  // 设置刮削
-  function scrape() {
-    visible.value = true;
-  }
 
   function close() {
     isShow.value = false;
@@ -61,9 +64,10 @@ export function useTask() {
 
   const { send: subHubSend } = useRequest(() => getSubFolderLists(urlData), { immediate: false });
   const { send: nodesSend } = useRequest(() => getShareNodes(urlData), { immediate: false });
+  const { send: myDirSend } = useRequest(() => getMyDirNodes(myData), { immediate: false });
 
-  const cascaderProps = ref({});
-  const selectedOptions = ref([]);
+  const shareDirProps = ref({});
+  const myDirProps = ref({});
 
   // 动态加载目录
   async function loadOptions(node, resolve) {
@@ -95,7 +99,7 @@ export function useTask() {
       }));
     } else {
       console.warn("Invalid response format for mapResponseToChildren:", response);
-      return [{ leaf: 1, label: "当前目录" }];
+      return [];
     }
   }
 
@@ -107,18 +111,49 @@ export function useTask() {
     urlData.account = ruleForm.account;
     urlData.shareDirId = ruleForm.shareDirId;
 
-    // 清空 selectedOptions
-    selectedOptions.value = [];
-    cascaderProps.value = {
+    shareDirProps.value = {
       lazy: true,
       lazyLoad: loadOptions,
     };
 
     // 触发加载
     await loadOptions({ level: 0 }, (nodes) => {
-      selectedOptions.value = nodes;
+      // 这里不需要额外处理，因为 Cascader 会自动处理
     });
   }
+
+  // 加载我的目录
+  async function loadMyDir(node, resolve) {
+    const { level } = node;
+
+    if (level === 0) {
+      myData.myDirId = "";
+    } else {
+      myData.myDirId = node.pathValues[node.pathValues.length - 1];
+    }
+    try {
+      const response = await myDirSend();
+      const children = mapResponseToChildren(response);
+      resolve(children);
+    } catch (error) {
+      console.error("Error fetching my directory lists:", error);
+      resolve([]);
+    }
+  }
+
+  async function getMyDirList() {
+    myDirProps.value = {
+      lazy: true,
+      lazyLoad: loadMyDir,
+      checkStrictly: true,
+    };
+
+    await loadMyDir({ level: 0 }, (nodes) => {
+      // 这里不需要额外处理，因为 Cascader 会自动处理
+    });
+  }
+
+  getMyDirList();
 
   return {
     visible,
@@ -131,10 +166,10 @@ export function useTask() {
     urlData,
     ruleFormRef,
     rules,
-    scrape,
     close,
-    cascaderProps,
-    selectedOptions,
+    shareDirProps,
     parseurl,
+    getMyDirList,
+    myDirProps,
   };
 }

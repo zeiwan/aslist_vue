@@ -6,3 +6,6 @@ export function getSubFolderLists(data: any) {
 export function getShareNodes(data: any) {
   return Alova.createPost("/subHub/getShareNodes", data);
 }
+export function getMyDirNodes(data: any) {
+  return Alova.createPost("/subHub/getMyNodes", data);
+}
