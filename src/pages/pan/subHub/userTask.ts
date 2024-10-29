@@ -8,7 +8,7 @@ export function useTask() {
   const isShow = ref(false);
   const mode = ref("add");
   const popupTitle = computed(() => {
-    return mode.value === "add" ? "新增云盘账号" : "编辑云盘账号";
+    return mode.value === "add" ? "新增任务" : "编辑任务";
   });
   const cloudList = reactive([
     { value: 1, label: "天翼云盘" },
@@ -28,6 +28,7 @@ export function useTask() {
     account: string;
     shareDirId: string[]; // 修改为数组
     saveDirId: string[]; // 修改为数组
+    cron: string;
   }
 
   const ruleForm = reactive<RuleForm>({
@@ -36,6 +37,7 @@ export function useTask() {
     account: "",
     shareDirId: [], // 初始化为数组
     saveDirId: [], // 初始化为数组
+    cron: "",
   });
 
   const urlData = reactive({
@@ -45,7 +47,7 @@ export function useTask() {
     shareDirId: "",
   });
   const myData = reactive({
-    cloudId: 1,
+    cloudId: ruleForm.cloudId,
     myDirId: "",
   });
 
@@ -56,6 +58,8 @@ export function useTask() {
     account: [{ required: true, message: "请输入账号", trigger: "blur" }],
     shareDirId: [{ required: true, message: "请选择订阅目录", trigger: "blur" }],
     saveDirId: [{ required: true, message: "请选择保存目录", trigger: "blur" }],
+    cron: [{ required: true, message: "请输入表达式", trigger: "blur" }],
+    url: [{ required: true, message: "请输入链接", trigger: "blur" }],
   });
 
   function close() {
@@ -114,6 +118,7 @@ export function useTask() {
     shareDirProps.value = {
       lazy: true,
       lazyLoad: loadOptions,
+      checkStrictly: true,
     };
 
     // 触发加载
@@ -153,8 +158,10 @@ export function useTask() {
     });
   }
 
-  getMyDirList();
-
+  // 刷新
+  function renovate() {
+    getMyDirList();
+  }
   return {
     visible,
     isShow,
@@ -169,7 +176,8 @@ export function useTask() {
     close,
     shareDirProps,
     parseurl,
-    getMyDirList,
+
+    renovate,
     myDirProps,
   };
 }

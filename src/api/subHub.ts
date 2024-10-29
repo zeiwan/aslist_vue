@@ -9,3 +9,6 @@ export function getShareNodes(data: any) {
 export function getMyDirNodes(data: any) {
   return Alova.createPost("/subHub/getMyNodes", data);
 }
+export function createDir(data: any) {
+  return Alova.createPost("/subHub/createDir", data);
+}
