@@ -18,15 +18,22 @@ export function getTaskLists(datta: any) {
   return Alova.createGet("/hub/getTaskLists", datta);
 }
 
-export function getSubFolderLists(data: any) {
-  return Alova.createPost("/subHub/getShareFolderLists", data);
+// export function getSubFolderLists(data: any) {
+//   return Alova.createPost("/hub/getShareFolderLists", data);
+// }
+// export function getShareNodes(data: any) {
+//   return Alova.createPost("/hub/getShareNodes", data);
+// }
+// export function getMyDirNodes(data: any) {
+//   return Alova.createPost("/hub/getMyNodes", data);
+// }
+// export function createDir(data: any) {
+//   return Alova.createPost("/hub/createDir", data);
+// }
+
+export function parseShareUrl(data: any) {
+  return Alova.createPost("/hub/parseShareUrl", data);
 }
 export function getShareNodes(data: any) {
-  return Alova.createPost("/subHub/getShareNodes", data);
-}
-export function getMyDirNodes(data: any) {
-  return Alova.createPost("/subHub/getMyNodes", data);
-}
-export function createDir(data: any) {
-  return Alova.createPost("/subHub/createDir", data);
+  return Alova.createPost("/hub/getShareNodes", data);
 }

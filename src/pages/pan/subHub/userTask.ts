@@ -1,7 +1,8 @@
 import { computed, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
-import { getMyDirNodes, getShareNodes, getSubFolderLists } from "~/api/hub";
+import { getShareNodes, parseShareUrl } from "~/api/hub";
+// import { getMyDirNodes, getShareNodes, getSubFolderLists } from "~/api/hub";
 
 export function useTask() {
   const visible = ref(false);
@@ -26,18 +27,22 @@ export function useTask() {
     cloudId: number;
     url: string;
     account: string;
-    shareDirId: string[]; // 修改为数组
-    saveDirId: string[]; // 修改为数组
+    myFolderIds: string[]; // 修改为数组
+    shareFolderIds: string[]; // 修改为数组
     cron: string;
+    taskName: string;
+    shareFolderId: string;
   }
 
   const ruleForm = reactive<RuleForm>({
     cloudId: 1,
     url: "https://cloud.189.cn/t/NBraYny2emme",
     account: "",
-    shareDirId: [], // 初始化为数组
-    saveDirId: [], // 初始化为数组
+    myFolderIds: [], // 初始化为数组
+    shareFolderIds: [], // 初始化为数组
     cron: "",
+    taskName: "",
+    shareFolderId: "",
   });
 
   const urlData = reactive({
@@ -48,7 +53,7 @@ export function useTask() {
   });
   const myData = reactive({
     cloudId: ruleForm.cloudId,
-    myDirId: "",
+    myFolder: "",
   });
 
   const ruleFormRef = ref<FormInstance>();
@@ -66,11 +71,11 @@ export function useTask() {
     isShow.value = false;
   }
 
-  const { send: subHubSend } = useRequest(() => getSubFolderLists(urlData), { immediate: false });
-  const { send: nodesSend } = useRequest(() => getShareNodes(urlData), { immediate: false });
+  const { send: parseSend } = useRequest(parseShareUrl, { immediate: false });
+  const { send: shareSend } = useRequest(getShareNodes, { immediate: false });
   const { send: myDirSend } = useRequest(() => getMyDirNodes(myData), { immediate: false });
 
-  const shareDirProps = ref({});
+  const shareNodesProps = ref({});
   const myDirProps = ref({});
 
   // 动态加载目录
@@ -78,12 +83,19 @@ export function useTask() {
     const { level } = node;
     try {
       if (level === 0) {
-        const response = await subHubSend();
+        const response = await parseSend(ruleForm);
+        if (!ruleForm.taskName) {
+          ruleForm.taskName = response[0].parentId;
+        }
         const children = mapResponseToChildren(response);
         resolve(children);
       } else {
-        urlData.shareDirId = node.pathValues[node.pathValues.length - 1];
-        const response = await nodesSend();
+        if (node.label === "当前目录") {
+          resolve();
+          return;
+        }
+        ruleForm.shareFolderId = node.pathValues[node.pathValues.length - 1];
+        const response = await shareSend(ruleForm);
         const children = mapResponseToChildren(response);
         resolve(children);
       }
@@ -106,16 +118,17 @@ export function useTask() {
       return [];
     }
   }
-
+  const setFormData = (data: Record<any, any>) => {
+    for (const key in formData) {
+      if (data[key] != null && data[key] !== undefined) {
+        // @ts-ignore
+        formData[key] = data[key];
+      }
+    }
+  };
   // 解析 URL 并加载目录
   async function parseurl() {
-    // 更新 urlData
-    urlData.cloudId = ruleForm.cloudId;
-    urlData.url = ruleForm.url;
-    urlData.account = ruleForm.account;
-    urlData.shareDirId = ruleForm.shareDirId;
-
-    shareDirProps.value = {
+    shareNodesProps.value = {
       lazy: true,
       lazyLoad: loadOptions,
       checkStrictly: true,
@@ -128,7 +141,7 @@ export function useTask() {
   }
 
   // 加载我的目录
-  async function loadMyDir(node, resolve) {
+  async function loadMyFolder(node, resolve) {
     const { level } = node;
 
     if (level === 0) {
@@ -146,21 +159,21 @@ export function useTask() {
     }
   }
 
-  async function getMyDirList() {
+  async function getMyFolderList() {
     myDirProps.value = {
       lazy: true,
-      lazyLoad: loadMyDir,
+      lazyLoad: loadMyFolder,
       checkStrictly: true,
     };
 
-    await loadMyDir({ level: 0 }, (nodes) => {
+    await loadMyFolder({ level: 0 }, (nodes) => {
       // 这里不需要额外处理，因为 Cascader 会自动处理
     });
   }
 
   // 刷新
   function renovate() {
-    getMyDirList();
+    getMyFolderList();
   }
   return {
     visible,
@@ -174,7 +187,7 @@ export function useTask() {
     ruleFormRef,
     rules,
     close,
-    shareDirProps,
+    shareNodesProps,
     parseurl,
 
     renovate,

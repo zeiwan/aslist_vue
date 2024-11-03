@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { useRequest } from "alova/client";
-import { isValidCron } from "cron-validator";
 import { defineExpose, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import ScrapeIndex from "../../../components/scrape/index.vue";
 import { useTask } from "~/pages/pan/subHub/userTask";
-import { addTask, createDir, editTask, getDetail } from "~/api/hub";
+// import { addTask, createDir, editTask, getDetail } from "~/api/hub";
 
 const {
   visible,
@@ -45,7 +43,7 @@ function cancelNewFolder() {
   isFolder.value = false;
 }
 
-const { send: createDirSend } = useRequest(createDir, { immediate: false });
+// const { send: createDirSend } = useRequest(createDir, { immediate: false });
 function handleSubmit() {
   createDirSend(formData).then(() => {
     ElMessage.success("创建完成，请重新刷新");
@@ -55,18 +53,18 @@ function handleSubmit() {
   });
 }
 
-const { send: addTaskSend } = useRequest(addTask, { immediate: false });
-const { send: editTaskSend } = useRequest(editTask, { immediate: false });
-const { send: detailTaskSend } = useRequest(getDetail, { immediate: false });
+// const { send: addTaskSend } = useRequest(addTask, { immediate: false });
+// const { send: editTaskSend } = useRequest(editTask, { immediate: false });
+// const { send: detailTaskSend } = useRequest(getDetail, { immediate: false });
 async function handleConfirm() {
-  if (!isValidCron(ruleForm.cron)) {
-    ElMessage.error("cron 表达式有误");
-    return;
-  }
-  ruleForm.myFolderId = ruleForm.myFolderIds[ruleForm.myFolderIds.length - 1];
-  ruleForm.shareFolderId = ruleForm.shareFolderIds[ruleForm.shareFolderIds.length - 1];
-  await ruleFormRef.value?.validate();
-  mode.value = "edit" ? await editTaskSend(ruleForm) : await addTaskSend(ruleForm);
+  // if (!isValidCron(ruleForm.cron)) {
+  //   ElMessage.error("cron 表达式有误");
+  //   return;
+  // }
+  // ruleForm.myFolderId = ruleForm.myFolderIds[ruleForm.myFolderIds.length - 1];
+  // ruleForm.shareFolderId = ruleForm.shareFolderIds[ruleForm.shareFolderIds.length - 1];
+  // await ruleFormRef.value?.validate();
+  // mode.value = "edit" ? await editTaskSend(ruleForm) : await addTaskSend(ruleForm);
   close();
 }
 
