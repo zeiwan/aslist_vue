@@ -1,7 +1,7 @@
 import { computed, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRequest } from "alova/client";
-import { getMyDirNodes, getShareNodes, getSubFolderLists } from "~/api/subHub";
+import { getMyDirNodes, getShareNodes, getSubFolderLists } from "~/api/hub";
 
 export function useTask() {
   const visible = ref(false);
